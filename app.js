@@ -1,5 +1,6 @@
 'use strict';
-const { defaultMenus, validateMenu, validStoredMenus, filterMenus, targetRotation } = MenuLogic;
+const { defaultMenus, validateMenu, validStoredMenus, filterMenus, targetRotation,
+  createSampleHistory, validHistory, recentHistory, topMenus } = MenuLogic;
 const canvas = document.getElementById('rouletteCanvas');
 const ctx = canvas.getContext('2d');
 const spinButton = document.getElementById('spinButton');
@@ -12,6 +13,58 @@ let menus = defaultMenus.map(menu => ({ ...menu }));
 let category = 'all';
 let rotation = 0;
 let spinning = false;
+const historyKey = 'lunchRecommendationHistory.v1';
+const historyNotice = document.getElementById('historyNotice');
+let history = [];
+function saveHistory() {
+  try {
+    localStorage.setItem(historyKey, JSON.stringify(history));
+    historyNotice.textContent = '';
+  } catch {
+    historyNotice.textContent = '사용 기록을 저장할 수 없어 현재 창에서만 반영됩니다.';
+  }
+}
+try {
+  const saved = localStorage.getItem(historyKey);
+  if (saved === null) {
+    history = createSampleHistory();
+    saveHistory();
+  } else {
+    const parsed = JSON.parse(saved);
+    if (!validHistory(parsed)) throw new Error('Invalid recommendation history');
+    history = parsed;
+  }
+} catch {
+  historyNotice.textContent = '사용 기록을 불러올 수 없습니다. 새 추천 결과부터 현재 창에 기록합니다.';
+}
+function renderRanking() {
+  const now = Date.now();
+  const recent = recentHistory(history, now);
+  const ranking = topMenus(recent, now);
+  const samples = recent.filter(entry => entry.isSample).length;
+  document.getElementById('rankingBadge').textContent = samples ? '예시 데이터 포함' : '사용 기록';
+  document.getElementById('rankingSummary').textContent =
+    `최근 30일 추천 ${recent.length}회${samples ? ` · 예시 ${samples}회 / 실제 ${recent.length - samples}회` : ''}`;
+  const rankingList = document.getElementById('rankingList');
+  rankingList.replaceChildren();
+  ranking.forEach((menu, index) => {
+    const row = document.createElement('li'); row.className = 'ranking-row';
+    const position = document.createElement('span'); position.className = 'ranking-position'; position.textContent = String(index + 1);
+    position.setAttribute('aria-label', `${index + 1}위`);
+    const detail = document.createElement('div'); detail.className = 'ranking-detail';
+    const label = document.createElement('div'); label.className = 'ranking-label';
+    const name = document.createElement('span'); name.className = 'ranking-name'; name.textContent = menu.name;
+    const tag = document.createElement('span'); tag.className = 'menu-tag'; tag.textContent = menu.category; name.append(tag);
+    const count = document.createElement('span'); count.className = 'ranking-count'; count.textContent = `${menu.count}회`;
+    const track = document.createElement('div'); track.className = 'ranking-track'; track.setAttribute('aria-hidden', 'true');
+    const fill = document.createElement('div'); fill.className = 'ranking-fill'; fill.style.width = `${menu.count / ranking[0].count * 100}%`;
+    track.append(fill); label.append(name, count); detail.append(label, track); row.append(position, detail); rankingList.append(row);
+  });
+  if (!ranking.length) {
+    const empty = document.createElement('li'); empty.className = 'ranking-summary';
+    empty.textContent = '아직 추천 기록이 없어요. 룰렛을 돌려 첫 메뉴를 골라 보세요!'; rankingList.append(empty);
+  }
+}
 try {
   const saved = localStorage.getItem('myMenus');
   if (saved !== null) {
@@ -51,6 +104,7 @@ function draw() {
   });
 }
 function render() {
+  renderRanking();
   list.replaceChildren();
   menus.forEach((menu, index) => {
     const item = document.createElement('li'); item.className = 'menu-item';
@@ -111,8 +165,16 @@ spinButton.addEventListener('click', () => {
     rotation %= Math.PI * 2;
     spinning = false;
     document.querySelectorAll('.category-btn, .input-group input, .input-group select, .add-btn').forEach(control => { control.disabled = false; });
+    history = recentHistory(history);
+    history.push({ ...items[winner], selectedAt: new Date().toISOString(), isSample: false });
+    saveHistory();
     result.textContent = `오늘은 ${items[winner].name}!`; render();
   }
   requestAnimationFrame(animate);
 });
 render();
+// 열린 화면도 날짜가 바뀌면 최근 30일 순위를 갱신한다.
+setInterval(renderRanking, 60 * 1000);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) renderRanking();
+});

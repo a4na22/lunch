@@ -29,5 +29,37 @@
     const normalized = ((current % circle) + circle) % circle;
     return current + circle * 5 + ((target - normalized + circle) % circle);
   }
-  root.MenuLogic = { defaultMenus, validateMenu, validStoredMenus, filterMenus, targetRotation };
+  const historyWindow = 30 * 24 * 60 * 60 * 1000;
+  function createSampleHistory(now = Date.now()) {
+    // 30일 동안 하루 한 번 사용한 예시. 방문할 때마다 다시 생성하지 않는다.
+    const schedule = [0, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 9, 1, 1, 1, 1, 1, 5, 5, 5, 5, 6, 6, 6, 2, 3, 4, 7, 8];
+    return schedule.map((_, day) => ({
+      ...defaultMenus[schedule[(day * 7) % schedule.length]],
+      selectedAt: new Date(now - day * 24 * 60 * 60 * 1000).toISOString(),
+      isSample: true
+    }));
+  }
+  function validHistory(value) {
+    return Array.isArray(value) && value.every(entry => entry && validStoredMenus([entry])
+      && typeof entry.selectedAt === 'string' && Number.isFinite(Date.parse(entry.selectedAt))
+      && typeof entry.isSample === 'boolean');
+  }
+  function recentHistory(history, now = Date.now()) {
+    return history.filter(entry => {
+      const time = Date.parse(entry.selectedAt);
+      return time > now - historyWindow && time <= now;
+    });
+  }
+  function topMenus(history, now = Date.now()) {
+    const counts = new Map();
+    recentHistory(history, now).forEach(entry => {
+      const key = JSON.stringify([entry.name, entry.category]);
+      if (!counts.has(key)) counts.set(key, { name: entry.name, category: entry.category, count: 0 });
+      counts.get(key).count++;
+    });
+    return [...counts.values()].sort((a, b) => b.count - a.count
+      || a.name.localeCompare(b.name, 'ko') || a.category.localeCompare(b.category, 'ko')).slice(0, 5);
+  }
+  root.MenuLogic = { defaultMenus, validateMenu, validStoredMenus, filterMenus, targetRotation,
+    createSampleHistory, validHistory, recentHistory, topMenus };
 })(globalThis);

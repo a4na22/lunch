@@ -16,6 +16,22 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .container { width: 100%; max-width: 500px; padding: 24px; background: var(--surface); border-radius: 16px; box-shadow: 0 8px 24px #0000000d; text-align: center; }
 h1 { margin: 0 0 8px; font-size: 26px; color: var(--primary-dark); }
 .subtitle { margin: 0 0 24px; font-size: 14px; color: var(--text-muted); }
+.ranking { margin: 0 0 24px; padding: 18px 16px; border: 1px solid #ffe3e3; border-radius: 12px; background: #fff9f9; text-align: left; }
+.ranking-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.ranking h2 { margin: 0; font-size: 17px; }
+.ranking-badge { border-radius: 20px; padding: 4px 8px; background: #ffe3e3; color: #b02525; font-size: 11px; }
+.ranking-summary, .ranking-caption { margin: 8px 0 0; font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.ranking-list { display: grid; gap: 12px; padding: 0; margin: 16px 0; list-style: none; }
+.ranking-row { display: flex; align-items: center; gap: 10px; }
+.ranking-position { display: grid; place-items: center; width: 26px; height: 26px; flex-shrink: 0; border-radius: 8px; background: #f1f3f5; color: #657079; font-size: 13px; font-weight: bold; }
+.ranking-row:first-child .ranking-position { background: var(--primary-dark); color: white; }
+.ranking-detail { flex: 1; min-width: 0; }
+.ranking-label { display: flex; gap: 8px; justify-content: space-between; font-size: 13px; }
+.ranking-name { overflow-wrap: anywhere; }
+.ranking-count { flex-shrink: 0; color: #b02525; font-weight: bold; }
+.ranking-track { height: 4px; margin-top: 6px; border-radius: 4px; background: #ffe3e3; overflow: hidden; }
+.ranking-fill { height: 100%; background: var(--primary); border-radius: inherit; }
+#historyNotice:empty { display: none; }
 .categories { display: flex; gap: 8px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap; }
 .category-btn { padding: 6px 12px; border: 1px solid var(--border); border-radius: 20px; background: white; font-size: 14px; }
 .category-btn.active { background: var(--primary-dark); color: white; border-color: var(--primary-dark); font-weight: bold; }

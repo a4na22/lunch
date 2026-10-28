@@ -12,6 +12,16 @@
   <main class="container">
     <h1>오늘 뭐 먹지?</h1>
     <p class="subtitle">결정장애를 해결해 주는 나만의 메뉴 룰렛</p>
+    <section class="ranking" aria-labelledby="rankingTitle">
+      <div class="ranking-heading">
+        <h2 id="rankingTitle">최근 30일 메뉴 TOP 5</h2>
+        <span class="ranking-badge" id="rankingBadge">사용 기록</span>
+      </div>
+      <p class="ranking-summary" id="rankingSummary"></p>
+      <ol class="ranking-list" id="rankingList" aria-label="많이 추천된 메뉴 순위"></ol>
+      <p class="ranking-caption">룰렛에서 추천된 횟수 기준 · 전체 메뉴 집계</p>
+      <p class="ranking-summary" id="historyNotice" role="status"></p>
+    </section>
     <div class="categories" id="categoryFilters" role="group" aria-label="메뉴 종류">
       <button type="button" class="category-btn active" data-category="all" aria-pressed="true">전체</button>
       <button type="button" class="category-btn" data-category="한식" aria-pressed="false">한식</button>
