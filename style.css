@@ -1,0 +1,42 @@
+:root {
+  --primary: #ff6b6b;
+  --primary-dark: #fa5252;
+  --background: #f8f9fa;
+  --surface: #fff;
+  --text: #212529;
+  --text-muted: #657079;
+  --border: #dee2e6;
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px 16px; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; background: var(--background); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif; }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .6; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid #1864ab; outline-offset: 3px; }
+.container { width: 100%; max-width: 500px; padding: 24px; background: var(--surface); border-radius: 16px; box-shadow: 0 8px 24px #0000000d; text-align: center; }
+h1 { margin: 0 0 8px; font-size: 26px; color: var(--primary-dark); }
+.subtitle { margin: 0 0 24px; font-size: 14px; color: var(--text-muted); }
+.categories { display: flex; gap: 8px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap; }
+.category-btn { padding: 6px 12px; border: 1px solid var(--border); border-radius: 20px; background: white; font-size: 14px; }
+.category-btn.active { background: var(--primary-dark); color: white; border-color: var(--primary-dark); font-weight: bold; }
+.roulette-wrapper { position: relative; width: min(280px, 100%); aspect-ratio: 1; margin: 0 auto 24px; }
+.pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid var(--primary-dark); z-index: 1; filter: drop-shadow(0 2px 4px #0003); }
+canvas { display: block; width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 4px 12px #0002; }
+.spin-btn { width: 100%; padding: 14px; background: var(--primary-dark); color: white; border: 0; border-radius: 8px; font-size: 18px; font-weight: bold; }
+.spin-btn:hover:enabled { background: #e03131; }
+.result-overlay { min-height: 42px; margin: 20px 0 0; font-size: 28px; font-weight: 800; color: var(--primary-dark); overflow-wrap: anywhere; }
+.menu-manager { margin-top: 24px; text-align: left; border-top: 1px solid var(--border); padding-top: 20px; }
+.menu-manager h2 { display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; margin: 0 0 12px; font-size: 16px; }
+.menu-manager h2 span { font-size: 12px; font-weight: normal; color: var(--text-muted); }
+.input-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.input-group input, .input-group select { min-width: 0; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+.input-group input { flex: 1 1 130px; }
+.add-btn { padding: 8px 14px; background: #087f8c; color: white; border: 0; border-radius: 6px; font-weight: bold; }
+.notice { margin: 8px 0; font-size: 13px; color: var(--text-muted); }
+.menu-list { max-height: 180px; overflow-y: auto; list-style: none; margin: 12px 0 0; border: 1px solid var(--border); border-radius: 6px; padding: 4px; }
+.menu-item { display: flex; gap: 8px; justify-content: space-between; align-items: center; padding: 6px 8px; font-size: 14px; }
+.menu-item:hover { background: var(--background); }
+.menu-tag { font-size: 11px; padding: 2px 6px; background: #e9ecef; border-radius: 10px; color: var(--text-muted); margin-left: 6px; }
+.delete-btn { background: none; border: 0; color: #c92a2a; padding: 6px; white-space: nowrap; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 380px) { .container { padding: 20px 14px; } }

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오늘 뭐 먹지? — 메뉴 추천 룰렛</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="logic.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main class="container">
+    <h1>오늘 뭐 먹지?</h1>
+    <p class="subtitle">결정장애를 해결해 주는 나만의 메뉴 룰렛</p>
+    <div class="categories" id="categoryFilters" role="group" aria-label="메뉴 종류">
+      <button type="button" class="category-btn active" data-category="all" aria-pressed="true">전체</button>
+      <button type="button" class="category-btn" data-category="한식" aria-pressed="false">한식</button>
+      <button type="button" class="category-btn" data-category="중식" aria-pressed="false">중식</button>
+      <button type="button" class="category-btn" data-category="양식" aria-pressed="false">양식</button>
+      <button type="button" class="category-btn" data-category="기타" aria-pressed="false">일식/기타</button>
+    </div>
+    <div class="roulette-wrapper">
+      <div class="pointer" aria-hidden="true"></div>
+      <canvas id="rouletteCanvas" width="560" height="560" role="img" aria-label="메뉴 룰렛">아래 메뉴 목록에서 후보를 확인하고 메뉴 돌리기 버튼을 눌러 주세요.</canvas>
+    </div>
+    <button type="button" class="spin-btn" id="spinButton">메뉴 돌리기</button>
+    <p class="result-overlay" id="resultDisplay" role="status" aria-live="polite"></p>
+    <section class="menu-manager" aria-labelledby="managerTitle">
+      <h2 id="managerTitle">메뉴 추가 / 삭제 <span>(브라우저에 저장됨)</span></h2>
+      <form class="input-group" id="menuForm">
+        <label class="sr-only" for="newMenuName">새 메뉴 이름</label>
+        <input type="text" id="newMenuName" placeholder="새 메뉴 이름 입력" maxlength="10" required>
+        <label class="sr-only" for="newMenuCategory">메뉴 종류</label>
+        <select id="newMenuCategory">
+          <option>한식</option><option>중식</option><option>양식</option><option>기타</option>
+        </select>
+        <button class="add-btn" type="submit">추가</button>
+      </form>
+      <p id="notice" class="notice" role="status"></p>
+      <ul class="menu-list" id="menuListDisplay" aria-label="등록한 메뉴"></ul>
+    </section>
+  </main>
+</body>
+</html>

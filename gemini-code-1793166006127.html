@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘 뭐 먹지? - 메뉴 추천 룰렛</title>
+    <style>
+        :root {
+            --primary: #ff6b6b;
+            --primary-dark: #fa5252;
+            --background: #f8f9fa;
+            --surface: #ffffff;
+            --text: #212529;
+            --text-muted: #868e96;
+            --border: #dee2e6;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
+        body { background-color: var(--background); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { max-width: 500px; width: 100%; background: var(--surface); padding: 24px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.05); text-align: center; }
+        h1 { font-size: 24px; margin-bottom: 8px; color: var(--primary); }
+        .subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
+        
+        /* 카테고리 탭 */
+        .categories { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+        .category-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-size: 14px; transition: all 0.2s; }
+        .category-btn.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: bold; }
+
+        /* 룰렛 영역 */
+        .roulette-wrapper { position: relative; width: 280px; height: 280px; margin: 0 auto 24px; }
+        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid var(--primary); z-index: 10; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+        canvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+        /* 버튼 및 결과 */
+        .spin-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: background 0.2s; box-shadow: 0 4px 6px rgba(255,107,107,0.2); }
+        .spin-btn:hover { background: var(--primary-dark); }
+        .spin-btn:disabled { background: var(--border); cursor: not-allowed; box-shadow: none; }
+        .result-overlay { font-size: 28px; font-weight: 800; margin-top: 20px; min-height: 42px; color: var(--primary-dark); animation: pop 0.3s ease-out; }
+
+        /* 메뉴 관리 리스트 */
+        .menu-manager { margin-top: 32px; text-align: left; border-top: 1px solid var(--border); padding-top: 20px; }
+        .menu-manager h3 { font-size: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .input-group { display: flex; gap: 8px; margin-bottom: 12px; }
+        .input-group input, .input-group select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+        .input-group input { flex: 1; }
+        .add-btn { padding: 8px 16px; background: #22b8cf; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .menu-list { max-height: 150px; overflow-y: auto; list-style: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border-radius: 4px; font-size: 14px; }
+        .menu-item:hover { background: var(--background); }
+        .menu-tag { font-size: 11px; padding: 2px 6px; background: #e9ecef; border-radius: 10px; color: var(--text-muted); margin-left: 6px; }
+        .delete-btn { background: none; border: none; color: #fa5252; cursor: pointer; font-size: 12px; padding: 2px 6px; }
+        
+        @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>오늘 뭐 먹지?</h1>
+        <p class="subtitle">결정장애를 해결해 주는 마법의 메뉴 룰렛</p>
+
+        <!-- 카테고리 필터 -->
+        <div class="categories" id="categoryFilters">
+            <button class="category-btn active" onclick="filterCategory('all')">전체</button>
+            <button class="category-btn" onclick="filterCategory('한식')">한식</button>
+            <button class="category-btn" onclick="filterCategory('중식')">중식</button>
+            <button class="category-btn" onclick="filterCategory('양식')">양식</button>
+            <button class="category-btn" onclick="filterCategory('기타')">일식/기타</button>
+        </div>
+
+        <!-- 룰렛 그래픽 -->
+        <div class="roulette-wrapper">
+            <div class="pointer"></div>
+            <canvas id="rouletteCanvas" width="500" height="500"></canvas>
+        </div>
+
+        <!-- 작동 버튼 및 결과 -->
+        <button class="spin-btn" id="spinButton" onclick="spinRoulette()">메뉴 돌리기!</button>
+        <div class="result-overlay" id="resultDisplay"></div>
+
+        <!-- 메뉴 편집 -->
+        <div class="menu-manager">
+            <h3>⚖️ 메뉴 추가 / 삭제 <span style="font-size:12px; font-weight:normal; color:var(--text-muted);">(브라우저에 저장됨)</span></h3>
+            <div class="input-group">
+                <input type="text" id="newMenuName" placeholder="새 메뉴 이름 입력" maxlength="10">
+                <select id="newMenuCategory">
+                    <option value="한식">한식</option>
+                    <option value="중식">중식</option>
+                    <option value="양식">양식</option>
+                    <option value="기타">기타</option>
+                </select>
+                <button class="add-btn" onclick="addMenu()">추가</button>
+            </div>
+            <ul class="menu-list" id="menuListDisplay"></ul>
+        </div>
+    </div>
+
+    <script>
+        // 기본 초기 메뉴 리스트
+        const defaultMenus = [
+            { name: '김치찌개', category: '한식' },
+            { name: '돈가스', category: '양식' },
+            { name: '칼국수', category: '한식' },
+            { name: '짜장면', category: '중식' },
+            { name: '삼겹살', category: '한식' },
+            { name: '초밥', category: '기타' },
+            { name: '파스타', category: '양식' },
+            { name: '떡볶이', category: '한식' },
+            { name: '마라탕', category: '중식' },
+            { name: '치킨', category: '기타' }
+        ];
+
+        let menus = JSON.parse(localStorage.getItem('myMenus')) || defaultMenus;
+        let currentCategory = 'all';
+        let filteredMenus = [...menus];
+
+        const canvas = document.getElementById('rouletteCanvas');
+        const ctx = canvas.getContext('2d');
+        const colors = ["#ff9f43", "#ee5253", "#10ac84", "#2e86de", "#341f97", "#f368e0", "#ff6b6b", "#00d2d3", "#54a0ff", "#5f27cd"];
+        
+        let start
